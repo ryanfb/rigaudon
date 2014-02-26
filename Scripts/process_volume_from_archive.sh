@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -e $TEXT_STAGING_DIR/AllGreekFromArchiveCombined/${ARCHIVE_ID}_hocr ]; then
-  mkdir $PROCESSING_DIR
+  mkdir -p -v $PROCESSING_DIR
   cd $PROCESSING_DIR
   ln -s $TEXT_STAGING_DIR/AllGreekFromArchiveCombined/${ARCHIVE_ID}* .
   cd -
@@ -9,7 +9,9 @@ fi
 echo "PROCESSING_DIR: ${PROCESSING_DIR}"
 #Download and preprocess the text images and data if they aren't downloaded yet
 if [ ! -d $PROCESSING_DIR ]; then
-  mkdir $PROCESSING_DIR
+  mkdir -p -v $PROCESSING_DIR
+  mkdir -p -v $OUTPUT_DIR
+  mkdir -p -v $ERROR_DIR
   cd $PROCESSING_DIR
   echo "Attempting to download $ARCHIVE_ID from archive.org"
   wget -nv --spider "http://www.archive.org/download/${ARCHIVE_ID}/${ARCHIVE_ID}_jp2.zip" 2>  ${OUTPUT_DIR}/response.txt 
@@ -17,9 +19,9 @@ if [ ! -d $PROCESSING_DIR ]; then
   echo "status: $badDL"
   if [ "$badDL" == "0" ]; then
     #the jp2 archive is not available, so we'll guess that it's tiff
-    wget http://www.archive.org/download/${ARCHIVE_ID}/${ARCHIVE_ID}_tif.zip
+    wget -c http://www.archive.org/download/${ARCHIVE_ID}/${ARCHIVE_ID}_tif.zip
   else
-    wget  http://www.archive.org/download/${ARCHIVE_ID}/${ARCHIVE_ID}_jp2.zip
+    wget -c http://www.archive.org/download/${ARCHIVE_ID}/${ARCHIVE_ID}_jp2.zip
   fi
   wget http://www.archive.org/download/${ARCHIVE_ID}/${ARCHIVE_ID}_meta.xml
   sleep 20
@@ -31,7 +33,7 @@ if [ ! -d $PROCESSING_DIR ]; then
   echo "Converting abbyy file to hocr"
   HOCR_DIR=${ARCHIVE_ID}_hocr
   #echo "hocrDir: $hocrDir"
-  mkdir $HOCR_DIR
+  mkdir -p -v $HOCR_DIR
   python $RIGAUDON_HOME/Scripts/abbyy2hocr_etree.py ${ARCHIVE_ID}_abbyy $HOCR_DIR  ${ARCHIVE_ID}_jp2
   #echo "Flattening abbyy file"
   #$RIGAUDON_HOME/Scripts/flatten_for_abbyy.sh ${ARCHIVE_ID}_abbyy 
@@ -45,5 +47,12 @@ fi
 echo $PROCESSING_DIR
 echo $CLASSIFIER_DIR
 
-echo 'Submitting job to Grid Engine'
-$RIGAUDON_HOME/SGE_Scripts/SGE_Gamera_Collection/process_collection.sh $PROCESSING_DIR $CLASSIFIER_DIR
+if hash qsub 2>/dev/null; then
+  echo 'Submitting job to Grid Engine'
+  $RIGAUDON_HOME/SGE_Scripts/SGE_Gamera_Collection/process_collection.sh $PROCESSING_DIR $CLASSIFIER_DIR
+elif hash parallel 2>/dev/null; then
+  echo 'Submitting job to GNU Parallel'
+  $RIGAUDON_HOME/Parallel_Scripts/process_collection.sh $PROCESSING_DIR $CLASSIFIER_DIR
+else
+  echo 'Need qsub or parallel to run jobs'
+fi
