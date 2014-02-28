@@ -3,7 +3,7 @@ LATIN_HOCR_DIR=$1
 GREEK_HOCR_DIR=$2
 OUTPUT_DIR=$3
 
-if [ $MIX_HOCR = "False" ]
+if [ "$MIX_HOCR" = "False" ]
 then
 	echo 'not doing HOCR mixing'
 	cp $GREEK_HOCR_DIR/* $OUTPUT_DIR
