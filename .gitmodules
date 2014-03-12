@@ -1,0 +1,3 @@
+[submodule "OpenGreekAndLatin"]
+	path = OpenGreekAndLatin
+	url = https://github.com/OpenPhilology/OpenGreekAndLatin.git
