@@ -13,6 +13,9 @@ if [[ -z $FBEVALUATOR_HOME ]]; then
   exit
 fi
 
+mkdir -vp $2
+mkdir -vp $3
+
 export JAVA_PATH=/usr/bin
 for file in `ls $1`
 do
@@ -21,12 +24,15 @@ TRUNC_FILENAME=${TRUNC_FILENAME%.*}
 
 echo $TRUNC_FILENAME
 lynx --dump $1/$file > $2/$TRUNC_FILENAME.txt
+
+echo "regularizing $2/$TRUNC_FILENAME.txt and putting into $3/$TRUNC_FILENAME.txt"
+$JAVA_PATH/java -classpath $FBEVALUATOR_HOME/transgamera-20110622/src eu/himeros/transcoder/TransGamera $FBEVALUATOR_HOME/transgamera-20110622/trans/eu/himeros/resources/transcoders/comb2u.txt < $2/$TRUNC_FILENAME.txt > $3/$TRUNC_FILENAME.txt
 done
 
-echo "regularizing files in $2 and putting into $3"
-	$JAVA_PATH/java -classpath $FBEVALUATOR_HOME/transgamera-20110622/src eu/himeros/transcoder/TransGamera $2 $3
+# echo "regularizing files in $2 and putting into $3"
+	# $JAVA_PATH/java -classpath $FBEVALUATOR_HOME/transgamera-20110622/transgamera.jar eu/himeros/transcoder/TransGamera $2 $3
 
-cd $FBEVALUATOR_HOME 
+cd $FBEVALUATOR_HOME/textevaluator/
 echo "Federizing $3"
 echo "$JAVA_PATH/java -Xmx10000m -jar textevaluator.jar $3/"
 $JAVA_PATH/java -Xmx10000m -jar textevaluator.jar $3/ 
