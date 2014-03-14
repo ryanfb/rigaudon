@@ -2,7 +2,7 @@
 export LC_ALL=$LANG
 export HOCR="ABBYY" 
 export RIGAUDON_HOME=`pwd`
-export FBEVALUATOR_HOME=/home/broberts/Federicos-evaluator
+export FBEVALUATOR_HOME=$RIGAUDON_HOME/OpenGreekAndLatin/bin/fbevaluator
 export GAMERA_CMDS=" --split --autogroup  --filter --otsu  0.94,0.97,1.0,1.03,1.05,1.07,1.09,1.12,1.15,1.17"
 export ARCHIVE_ID=septemadthebased00aescuoft
 export CLASSIFIER_DIR=$RIGAUDON_HOME/Gamera/Classifiers/Kaibel_Round_4/
