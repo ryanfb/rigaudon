@@ -56,7 +56,8 @@ for BOOK_DIR in `find -L $COLLECTION_DIR/* -maxdepth 0 -type d`
 do
 	echo -e "\n\t Counting the number of pages in $COLLECTION_DIR/$BOOK_DIR..."
 	export FILE_LIST=$BOOK_DIR/filelist.txt
-	find -L $BOOK_DIR/* -maxdepth 0 -type f  -regextype posix-extended -regex '.*\.(png|jp2|tiff|tif)' -print | sort > $FILE_LIST
+	gfind -L $BOOK_DIR/* -maxdepth 0 -type f  -regextype posix-extended -regex '.*\.(png|jp2|tiff|tif)' -print | sort > $FILE_LIST
+	# find -L $BOOK_DIR/* -maxdepth 0 -type f -name '*.png' -o -name '*.jp2' -o -name '*.tiff' -o -name '*.tiff' -print | sort > $FILE_LIST
 	#This counts the number of files, necessary to provide
 	#an arbitrary number of jobs
 	export FILE_COUNT=`cat $FILE_LIST | wc -l`

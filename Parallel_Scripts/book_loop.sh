@@ -129,34 +129,33 @@ fi
 #This does an array job the size of the number of files in the book
 #directory
 
-parallel -a $FILE_LIST $RIGAUDON_HOME/Parallel_Scripts/qsubed_job.sh
+parallel -u --eta -a $FILE_LIST $RIGAUDON_HOME/Parallel_Scripts/qsubed_job.sh
 # qsub -N $OCR_BATCH_JOB_NAME  -p -1000 $PREV_BOOK_HOLD -o $OUTPUT_DIR -e $ERROR_DIR -S /bin/bash -t 1-$FILE_COUNT -V $RIGAUDON_HOME/SGE_Scripts/SGE_Gamera_Collection/qsubed_job.sh
 
 #Now we use this script to:
 #1. Convert the hocr output to plain text
 #2. Evaluate the plain text with Federico's code
 #3. Save comma-separated pairs of textfile name and score 
-qsub -N $LYNX_DUMP_JOB_NAME -p -900 -hold_jid $OCR_BATCH_JOB_NAME -o $OUTPUT_DIR -e $ERROR_DIR -S /bin/bash  -V  $RIGAUDON_HOME/Scripts/lynx_dump.sh $HOCR_OUTPUT $PRIMARY_OUTPUT $SECONDARY_OUTPUT $CSV_FILE
+$RIGAUDON_HOME/Scripts/lynx_dump.sh $HOCR_OUTPUT $PRIMARY_OUTPUT $SECONDARY_OUTPUT $CSV_FILE
 
 #This script takes the above-generated csv file and uses it to:
 #1. Copy the highest-scoring text file to the 'selected' dir
 #2. Copy the corresponding highest-scoring hocr file to the 'selected' dir
 #3. Make a graph of page# vs. score for these highest-scoring pages.
-qsub -N $SUMMARY_SPLIT_JOB_NAME -p -800 -hold_jid  $LYNX_DUMP_JOB_NAME  -b y -o $OUTPUT_DIR -e $ERROR_DIR -S /bin/bash -V /usr/bin/python $RIGAUDON_HOME/Scripts/summary_split.py $CSV_FILE $HOCR_OUTPUT $PRIMARY_OUTPUT $HOCR_SELECTED $TEXT_SELECTED $GRAPH_IMAGE_FILE $barebookname $filename
+python $RIGAUDON_HOME/Scripts/summary_split.py $CSV_FILE $HOCR_OUTPUT $PRIMARY_OUTPUT $HOCR_SELECTED $TEXT_SELECTED $GRAPH_IMAGE_FILE $barebookname $filename
 
 # this does a array job to blend all HOCRs that pertain to a given page image, selecting words that
 # appear in our dictionary over ones that do not
-qsub -N $BLEND_JOB_NAME -p -700 -hold_jid $SUMMARY_SPLIT_JOB_NAME -o $OUTPUT_DIR -e $ERROR_DIR -S /bin/bash -t 1-$FILE_COUNT -V $RIGAUDON_HOME/SGE_Scripts/SGE_Gamera_Collection/qsubed_blend_hocrs.sh
+parallel -u --eta $RIGAUDON_HOME/Parallel_Scripts/qsubed_blend_hocrs.sh ::: $HOCR_SELECTED/*.html
 
 #non-array version. SLOOOOW
 # qsub -N $BLEND_JOB_NAME -p -600  -hold_jid $SUMMARY_SPLIT_JOB_NAME -o $OUTPUT_DIR -e $ERROR_DIR -S /bin/bash  -V $RIGAUDON_HOME/Scripts/blend_hocrs.sh
 
 # spellchecking 
-qsub -N $SPELLCHECK_JOB_NAME -p -500 -hold_jid  $BLEND_JOB_NAME -b y -pe make 10 -o $OUTPUT_DIR -e $ERROR_DIR -S /bin/bash -V /usr/bin/python $RIGAUDON_HOME/Scripts/read_dict5.py $DICTIONARY_FILE $TEXT_BLENDED/output*  $SPELLCHECK_FILE
+python $RIGAUDON_HOME/Scripts/read_dict5.py $DICTIONARY_FILE $TEXT_BLENDED/output*  $SPELLCHECK_FILE
 
-qsub -N $SPELLREPLACE_JOB_NAME -p -400  -hold_jid  $SPELLCHECK_JOB_NAME -b y -o $OUTPUT_DIR -e $ERROR_DIR -S /bin/bash -V /usr/bin/python $RIGAUDON_HOME/Scripts/spellcheck_hocr.py $SPELLCHECK_FILE $HOCR_BLENDED   $SPELLCHECKED_HOCR_SELECTED
+python $RIGAUDON_HOME/Scripts/spellcheck_hocr.py $SPELLCHECK_FILE $HOCR_BLENDED   $SPELLCHECKED_HOCR_SELECTED
 
-qsub -N $COMBINE_GREEK_AND_LATIN_JOB_NAME -p -300 -hold_jid $SPELLREPLACE_JOB_NAME -b y -o $OUTPUT_DIR -e $ERROR_DIR -S /bin/bash -V  $RIGAUDON_HOME/Scripts/mungomatic.sh $ABBYY_DATA $SPELLCHECKED_HOCR_SELECTED $COMBINED_HOCR
+$RIGAUDON_HOME/Scripts/mungomatic.sh $ABBYY_DATA $SPELLCHECKED_HOCR_SELECTED $COMBINED_HOCR
 
-qsub -N $POSTPROCESS_JOB_NAME -p -200 -hold_jid  $COMBINE_GREEK_AND_LATIN_JOB_NAME  -o $OUTPUT_DIR -e $ERROR_DIR -S /bin/bash -V $RIGAUDON_HOME/Scripts/post_qsub_processing.sh
-echo $JOB_NAME_BASE > $CURRENT_JOB_FILE 
+echo $RIGAUDON_HOME/Scripts/post_qsub_processing.sh
