@@ -202,7 +202,10 @@ def spellcheck_urls(dict_file, urls, output_file_name, max_weight=9, debug=False
     output_file= codecs.open(output_file_name, 'w', 'utf-8')
     #print "numbre of urls: ", len(urls)
     for url in urls:
-        raw = urlopen(url).read().decode('utf-8')
+        print url
+        raw = urlopen(url).read().decode('utf-8','ignore')
+        # raw = unicode(urlopen(url).read(), errors='replace').decode('utf8')
+        print raw
         n = 0
         lines = raw.split("\n")
         #if debug:
@@ -210,6 +213,7 @@ def spellcheck_urls(dict_file, urls, output_file_name, max_weight=9, debug=False
             #for line in lines:
             #    print line
         tokens  =  Dehyphenate(lines)
+        print "tokens: ", len(tokens)
 	#if tokens[-1][-1] = '-':
         #       tokens = tokens[:-1]
 
@@ -217,6 +221,7 @@ def spellcheck_urls(dict_file, urls, output_file_name, max_weight=9, debug=False
         #    for token in tokens:
         #        print token
         all_tokens = all_tokens + delete_non_greek_tokens(tokens)
+        print "all tokens: ", len(all_tokens)
     if debug:
         for token in all_tokens:
             print token
