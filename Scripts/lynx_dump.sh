@@ -23,7 +23,7 @@ TRUNC_FILENAME=$(basename $file)
 TRUNC_FILENAME=${TRUNC_FILENAME%.*}
 
 echo $TRUNC_FILENAME
-lynx --dump $1/$file > $2/$TRUNC_FILENAME.txt
+lynx -display_charset UTF-8 --dump $1/$file > $2/$TRUNC_FILENAME.txt
 
 echo "regularizing $2/$TRUNC_FILENAME.txt and putting into $3/$TRUNC_FILENAME.txt"
 $JAVA_PATH/java -classpath $FBEVALUATOR_HOME/transgamera-20110622/src eu/himeros/transcoder/TransGamera $FBEVALUATOR_HOME/transgamera-20110622/trans/eu/himeros/resources/transcoders/comb2u.txt < $2/$TRUNC_FILENAME.txt > $3/$TRUNC_FILENAME.txt

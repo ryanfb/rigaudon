@@ -26,5 +26,5 @@ OTHER_HOCRS=$HOCR_OUTPUT/$OTHER_HOCRS_GLOB
 echo OTHER_HOCRS: $OTHER_HOCRS
 # we need: dictionary, base file, glommed other files, output file
 python -u $RIGAUDON_HOME/Scripts/select_from_thresholds.py $DICTIONARY_FILE $BASE_HOCR_FILENAME $OTHER_HOCRS $BLENDED_OUTPUT_FILE
-lynx --dump $BLENDED_OUTPUT_FILE > $TEXT_BLENDED/$TRUNC_BASE_HOCR_FILENAME_NO_EXT.txt
+lynx -display_charset UTF-8 --dump $BLENDED_OUTPUT_FILE > $TEXT_BLENDED/$TRUNC_BASE_HOCR_FILENAME_NO_EXT.txt
 # printf 'Elapsed time: %s\n' $(timer $tmr) 
