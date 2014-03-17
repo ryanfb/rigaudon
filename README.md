@@ -15,8 +15,9 @@ Pre-requisites:
  * [gamera](http://gamera.informatik.hsnr.de/)
  * [gamera-ocr](http://gamera.informatik.hsnr.de/addons/ocr4gamera/)
  * greekocr4gamera: install the customized version from this repo in `./Gamera/greekocr-1.0.0`
- * [Mahotas](http://luispedro.org/software/mahotas): pip install mahotas
- * matplotlib: pip install matplotlib
+ * [Mahotas](http://luispedro.org/software/mahotas): `pip install mahotas`
+ * matplotlib: `pip install matplotlib`
+ * nltk: `pip install nltk`
 
 Mac notes:
 ----------
