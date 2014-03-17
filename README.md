@@ -18,6 +18,7 @@ Pre-requisites:
  * [Mahotas](http://luispedro.org/software/mahotas): `pip install mahotas`
  * matplotlib: `pip install matplotlib`
  * nltk: `pip install nltk`
+ * [python-Levenshtein](https://pypi.python.org/pypi/python-Levenshtein/)
 
 Mac notes:
 ----------
